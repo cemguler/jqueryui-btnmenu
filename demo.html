@@ -1,0 +1,540 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>jqueryui-btnmenu demo</title>
+
+<script src="scripts/jquery-1.9.1.min.js"></script>  
+<script src="scripts/jquery-ui/ui/jquery-ui.js"></script>
+<script type="text/javascript" src="scripts/jqueryui-btnmenu.js"></script>
+<script src="scripts/json2xml.js"></script>
+<script src="scripts/codemirror/lib/codemirror.js"></script>
+<script src="scripts/codemirror/addon/format/formatting.js"></script>
+<script src="scripts/codemirror/addon/selection/active-line.js"></script>
+<script src="scripts/codemirror/addon/search/searchcursor.js"></script>
+<script src="scripts/codemirror/addon/search/match-highlighter.js"></script>
+<script src="scripts/codemirror/addon/runmode/runmode.js"></script>	
+<script src="scripts/codemirror/mode/meta.js"></script>
+<script src="scripts/codemirror/mode/xml/xml.js"></script>
+<script src="scripts/codemirror/mode/javascript/javascript.js"></script>
+<script src="scripts/codemirror/mode/css/css.js"></script>
+<script src="scripts/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+
+<link rel="stylesheet" href="scripts/jquery-ui/themes/base/jquery-ui.css" />  
+<link rel="stylesheet" href="scripts/codemirror/lib/codemirror.css">
+
+<style id="css-btn-menu">
+	/* main menu container */
+	.btn-menu {
+		padding:0px;
+		margin:0px;
+		overflow:hidden;
+	}
+	
+	/* main menu container - vertical version */
+	.btn-menu.vertical {
+		border:1px solid #888;
+	}
+	
+	/* multi-level view */
+	.btn-levelmenu {
+		min-height:26px;
+	}
+	
+	/* multi-level view - vertical version */
+	.vertical.btn-levelmenu {
+		display:inline;
+		float:left !important;
+		border:1px solid #888;
+		border-left:0px;
+	}
+	
+	/* top level menu items */
+	.btn-menu .btn-menuitem {
+		border:1px solid transparent;
+		background-color:transparent;
+		vertical-align:center; 
+	}	
+	
+	/* top level menu items hover */
+	.btn-menu .btn-menuitem:hover {		
+		background-color:#fcc900;
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+		filter: alpha(opacity=70);
+		opacity:.70;	
+	}
+	
+	/* child menu items */
+	.btn-pulldown .btn-menuitem {		
+		border:1px solid transparent;
+		border-bottom:1px solid #aaa;
+	}
+	
+	/* hide last child item border-bottom */
+	.btn-pulldown .btn-menuitem:last-child {
+		border-bottom:1px solid transparent;
+	}
+	
+	/* child menu items hover */
+	.btn-pulldown .btn-menuitem:hover {	
+		background-color:#fcc900;	/* #f0f0f0; */
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+		filter: alpha(opacity=70);
+		opacity:.70;	
+	}
+	
+	/* top level traced items */
+	.btn-menu .btn-trace {
+		background-color:#fcc900;
+	}
+	
+	/* child traced items */
+	.btn-pulldown .btn-trace {
+		background-color:#fcc900;
+	}
+	
+	/* context menu */
+	.btn-context {
+		padding:0px;
+		border:1px solid #aaa;
+		background-color:#fff !important;
+	}
+	
+	/* pulldown menu */
+	.btn-pulldown {
+		display:table;
+		padding:0px;
+		border:1px solid #aaa;
+		background-color:#fff;
+	}	
+	
+	/* horizontal seperator menu item */
+	.horizontal.btn-menuitem-seperator {
+		display:inline;
+		float:left;
+		font-size:1px;
+		background-color:#888;
+		width:1px;
+		border:0px;
+		border-left:1px solid #fff;
+		padding:0px !important;
+		margin:0px 5px;
+	}
+	
+	/* vertical seperator menu item */
+	.vertical.btn-menuitem-seperator {
+		display:block;
+		font-size:1px;
+		background-color:#aaa;
+		border:0px;
+		height:1px;
+		width:auto;
+		padding:0px !important;
+		margin:5px 0px;
+	}
+	
+	/* horizontal label item */
+	.horizontal.btn-menuitem-label,
+	.horizontal.btn-menuitem-label:hover {
+		background-color:transparent;
+		padding:0px;
+	}
+
+	/* vertical label item */
+	.vertical.btn-menuitem-label,
+	.vertical.btn-menuitem-label:hover {
+		background-color:transparent;
+		display:block !important;
+	}
+	
+	/* menu item link text */
+	.btn-menuitem .btn-menuitem-text {
+		display:table-cell;
+		padding:4px;
+		font-size:10pt;
+		text-decoration:none;
+		color:inherit;
+		vertical-align:center; 		
+	}
+	.btn-menuitem .btn-menuitem-text {
+		cursor:default;
+		vertical-align:center; 
+	}
+	
+	/* pulldown left side icon container area */
+	.btn-pulldown-icon-container {
+		position:absolute;
+		background-color:#dedede;
+		z-index:-1;
+	}	
+
+	/* menu item icons and arrows */
+	.btn-menuitem-icon {
+		display:table-cell;
+		text-align:center;
+		vertical-align:middle;
+		z-index:999;
+	}
+	.btn-menuitem-arrow {		
+		display:table-cell;
+		width:16px;
+		height:16px;
+		margin-right:3px;		
+		background-repeat:no-repeat;
+		background-position:center center;
+	}
+	
+	.btn-menuitem-arrow.blank.light { background-image:url(images/mn-arrow-blank.png); }	
+	.btn-menuitem-arrow.down.light  { background-image:url(images/mn-arrow-down.png); }	
+	.btn-menuitem-arrow.right.light { background-image:url(images/mn-arrow-right.png); }	
+	.btn-menuitem-arrow.left.light  { background-image:url(images/mn-arrow-left.png); }	
+	
+	.btn-menuitem-arrow.blank.dark { background-image:url(images/mn-arrow-blank-white.png); }	
+	.btn-menuitem-arrow.down.dark  { background-image:url(images/mn-arrow-down-white.png); }	
+	.btn-menuitem-arrow.right.dark { background-image:url(images/mn-arrow-right-white.png); }	
+	.btn-menuitem-arrow.left.dark  { background-image:url(images/mn-arrow-left-white.png); }	
+	
+</style>
+<style id="css-btn-menu-custom">
+	.btn-menuitem {
+		
+	}
+</style>
+
+<style>
+	body {
+		font-family:Helvetica, Arial, Verdana !important;
+		font-size:10pt;
+		margin:0px;
+	}
+
+	.CodeMirror {
+		border:1px solid #aaa;
+		font-size:10px;
+	}
+	.ui-tabs-panel {
+		padding:4px !important;
+	}
+	
+	#pnlsettings {	}
+	#pnlsettings input[type=text],
+	#pnlsettings textarea,
+	#pnlsettings select {
+		font-family:Helvetica, Arial, Verdana !important;
+		padding:4px;
+		width:120px;
+		min-width:auto;
+		max-width:auto;
+		font-size:10pt;
+	}
+	#pnlsettings input[type=checkbox] {
+		padding:4px;
+	}
+	#pnlsettings div.inputdiv {
+		clear:both;
+		margin-top:5px;
+		margin-bottom:5px;
+	}
+	#pnlsettings label {		
+		float:left;
+		font-size:10pt;
+		line-height:12pt;
+		padding:5px;
+		width:150px;
+	}
+
+</style>
+<script type="text/javascript">
+
+	var jmnobj = {"menuitem":[
+		{ "@type":"label", "@title":"", "@url":"#",
+			"#cdata":'<label style="color:red;font-size:8pt;font-weight:bold;padding:5px;">Hello from btn-jquery-plugins</label>'
+		},
+		{ "@title":"-", "@url":"#" },
+		{ "@title":"Menu Item 1", "@url":"#", "@style":"background:#006600;color:#fff;" },
+		{ "@title":"dfg dsfg 2", "@url":"#", "@style":"color:#fff; background:#aa0000;",
+			"@pulldownstyle":"border:1px solid #aa0000; padding:10px; color:#fff; background:#aa0000;",
+			"menuitem":[
+				{ "@title":"New sdfassdfasd fMenu Item 2.1", "@url":"#", "menuitem":[
+						{ "@title":"Item 2.1.1", "@icon":"images/action_delete_red.png", "@url":"#" },
+						{ "@title":"Menu Item dfsgfdsfg 2.1.2", "@url":"#", "@icon":"refresh" },
+						{ "@title":"New Menu Item 2.1.3", "@url":"#", "menuitem":[
+								{ "@title":"New Menu Item 2.1.3.1", "@url":"#" },
+								{ "@title":"New Menu Item 2.1.3.2", "@url":"#" }        
+							]
+						},
+						{ "@title":"New Menu Item 2.1.4", "@url":"#" }
+					]
+				},
+				{ "@title":"New Menu Item 2.2", "@url":"#" }
+			]
+		},
+		{ "@title":"-", "@url":"#" },
+		{ "@title":"New Menu Item 3", "@url":"#", "@hidden":"false" },
+		{ "@title":"New Menu Item 4", "@url":"#", "@disabled":"true", "@position":"right", "menuitem":[
+				{ "@title":"New dsfgdfg sdfgdsfMenu Item 4.1", "@url":"#", "menuitem":[
+						{ "@title":"New Menu Item 4.1.1", "@url":"http://www.google.com" },
+						{ "@title":"New Menu Item 4.1.2", "@url":"#" }
+					]
+				},
+				{ "@title":"New Menu Item 4.2", "@url":"#" },
+				{ "@title":"New Menu Item 4.3", "@url":"#" },
+				{ "@title":"New Menu Item 4.4", "@url":"#" }
+			]
+		}
+	]};
+
+	var xmnstr = '<menuitems>' +
+				'	<menuitem type="label" title="" url="#">' +
+				'		<![CDATA[' +
+				'			<label style="color:red;font-size:8pt;font-weight:bold;padding:5px;">Hello from btn-jquery-plugins</label>' +
+				//'			<br/><img src="images/anon.png">' +
+				'		]]>' +
+				'		<menuitem title="Menu Item 1xxx" url="#">' +
+				'		</menuitem>' +
+				'		<menuitem title="Menu Item 2xxx" url="#">' +
+				'		</menuitem>' +
+				'	</menuitem>' +
+				'	<menuitem title="-" url="#"></menuitem>' +
+				'	<menuitem title="Menu Item 1" url="#"></menuitem>' +	// style="background:#006600;color:#fff;"
+				'	<menuitem title="dfg dsfg 2" url="#" iconmap="-3px -4px">' +	// style="color:#fff; background:#aa0000;" pulldownstyle="border:1px solid #aa0000; padding:10px; color:#fff; background:#aa0000;"
+				'	  <menuitem title="New sdfassdfasd fMenu Item 2.1" url="#">' +
+				'		<menuitem title="Item 2.1.1" icon="images/action_delete_red.png" url="#"></menuitem>' +
+				'		<menuitem title="Menu Item dfsgfdsfg 2.1.2" url="#" iconmap="-3px -4px"></menuitem>' +
+				'		<menuitem title="New Menu Item 2.1.3" url="#">' +
+				'			<menuitem title="New Menu Item 2.1.3.1" url="#"></menuitem>' +
+				'			<menuitem title="New Menu Item 2.1.3.2" url="#"></menuitem>' +
+				'		</menuitem>' +
+				'		<menuitem title="New Menu Item 2.1.4" url="#"></menuitem>' +
+				'	  </menuitem>' +
+				//'	  <menuitem title="-" url="#"></menuitem>' +
+				'	  <menuitem title="New Menu Item 2.2" url="#"></menuitem>' +
+				'	</menuitem>' +
+				'	<menuitem title="-" url="#xxx"></menuitem>' +
+				// style="background:#ff0000 !important; font-weight:bold; color:#ffffff;"
+				'	<menuitem title="New Menu Item 3" url="#" hidden="false" iconmap="-35px -4px">' +
+				'		<menuitem title="New Menu Item 3.1" url="#" iconmap="-3px -4px"></menuitem>' +
+				'		<menuitem title="New Menu Item 3.2" url="#"></menuitem>' +
+				'		<menuitem title="New Menu Item 3.3" url="#"></menuitem>' +
+				'	</menuitem>' +
+				'	<menuitem title="New Menu Item 4" url="#" disabled="true" position="right">' +
+				'	  <menuitem title="New dsfgdfg sdfgdsfMenu Item 4.1" url="#">' +
+				'		<menuitem title="New Menu Item 4.1.1" url="http://www.google.com" iconmap="-3px -4px"></menuitem>' +
+				'		<menuitem title="New Menu Item 4.1.2" url="#"></menuitem>' +
+				'	  </menuitem>' +
+				'	  <menuitem title="New Menu Item 4.2" url="#"></menuitem>' +
+				'	  <menuitem title="New Menu Item 4.3" url="#"></menuitem>' +
+				'	  <menuitem title="New Menu Item 4.4" url="#"></menuitem>' +
+				'	</menuitem>' +
+				'</menuitems>';
+	var xmleditor = null;	
+	var csseditor = null;	
+	var cssviewer = null;
+	function reload_menu() {
+		var st = (new Date()).getTime();
+		$("#pnltest").btnmenu2({
+			dataobject:xmleditor.getValue(),
+			//datamode:"json",
+			//dataobject:jmnobj,
+			layout:$("#cmblayout").val(),
+			showlevels:$("#txtlevels").val(),
+			levelshading:$("#chklevelshade").is(":checked"),
+			enabletrace:$("#chkenabletrace").is(":checked"),
+			showicons:$("#chkshowicons").is(":checked"),
+			showindexes:$("#chkshowindexes").is(":checked"),
+			hidedisabledchildren:$("#chkhidedisabled").is(":checked"),
+			activation:$("#cmbactivation").val(),
+			iconfile:"images/backtest.png",
+			iconsize:16
+		});		
+		var en = (new Date()).getTime();
+	}
+	$(document).ready(function () {
+		$("#txtdata").val(xmnstr);
+		$("#setting-tabs").tabs({
+			create:function(event, ui) {
+				$("#xml-tabs").tabs({
+					activate:function(event,ui) {
+						if (ui.newPanel.attr("id")=="css-customize-tab") {
+							csseditor.refresh();
+						}
+						if (ui.newPanel.attr("id")=="css-original-tab") {
+							cssviewer.refresh();
+						}
+						if (ui.newPanel.attr("id")=="xml-tab") {
+							xmleditor.refresh();
+						}
+					}
+				});
+			}
+		});
+	
+		xmleditor = CodeMirror.fromTextArea(document.getElementById("txtdata"), {
+			mode: 'text/xml',
+			lineNumbers:true,
+			styleActiveLine: true,
+			highlightSelectionMatches: true,
+			tabMode: 'indent'
+		});
+		var totalLines = xmleditor.lineCount();
+		var totalChars = xmleditor.getTextArea().value.length;
+		xmleditor.autoFormatRange({line:0, ch:0}, {line:totalLines, ch:totalChars});
+		xmleditor.setCursor(0);
+		xmleditor.refresh();
+		
+		$("#txtcss").val($("#css-btn-menu-custom").html());
+		csseditor = CodeMirror.fromTextArea(document.getElementById("txtcss"), {
+			mode: 'text/css',
+			lineNumbers:true,
+			styleActiveLine: true,
+			highlightSelectionMatches: true,
+			tabMode: 'indent'
+		});
+		var totalLines = csseditor.lineCount();
+		var totalChars = csseditor.getTextArea().value.length;
+		csseditor.autoFormatRange({line:0, ch:0}, {line:totalLines, ch:totalChars});
+		csseditor.setCursor(0);
+		csseditor.refresh();
+		csseditor.on("change", function() {
+			$("#css-btn-menu-custom").html(csseditor.getValue());
+		});
+		
+		var cssviewer = CodeMirror(document.getElementById("txtoricss"), {
+			value:$("#css-btn-menu").html(),
+			lineNumbers:true,
+			mode: 'text/css',
+			readOnly: true
+		});		
+		
+		reload_menu();
+
+	});
+	
+	function menuitem_action(mnind, vmeth) {
+		if (vmeth && mnind) $("#pnltest").btnmenu2(vmeth, mnind);
+	}
+
+	function menuitem_add() {
+		$("#pnltest").btnmenu2("addmenuitem", {
+			ref:$("#txtrefitemindex").val(),
+			pos:$("#cmbpos").val(),
+			title:$("#txtnewitemname").val()
+		});
+	}
+	
+</script>
+</head>
+<body>
+	<div style="padding:25px; padding-top:5px; background:#f0f0f0; border-bottom:2px solid #dedede;">
+		<h1>jqueryui-btnmenu demo</h1>
+		<textarea  id="txtdbg" style="display:none; width:800px; height:200px;"></textarea>
+		<div id="dbg" style="display:none; margin-left:30px;">Debugger Messages</div>
+		<div>
+			<table width="100%"><tr><td valign="top">
+			</td><td valign="top">
+				<b>Tested Browser Support : </b> IE 9.0 +, Chrome v26<br/>
+			</td><td width="70" style="padding-left:30px;" valign="top">
+				<a href="jqueryui-btnmenu.zip">Download</a>
+			</td><td width="140" style="padding-left:30px;" valign="top">
+				<a href="http://www.linkedin.com/in/cemguler"><img src="images/btn_in_20x15.png" border="0" align="left">Linkedin Contact</a><br/>
+			</td></tr>
+			</table>
+		</div>
+	</div>
+	<br/>
+	<div id="pnltest" style="background-color:#ffffff; padding:0px; display:block;overflow:hidden; min-height:20px; clear:both; margin:30px; margin-top:10px; ">
+	</div>
+	
+	<div style="margin:30px; margin-top:0px;">
+		<table cellpadding="10" width="100%" style="table-layout:fixed;">
+		<tr><td id="setting-tabs" valign="top" width="350">
+			<ul style="font-size:10pt;">
+				<li><a href="#settings-tab">Settings</a></li>
+				<li><a href="#method-tab">Test Methods</a></li>
+			</ul>
+			<div id="settings-tab">
+				<div id="pnlsettings" style="padding:10px;">
+					<div class="inputdiv">
+						<label>Layout</label>
+						<select id="cmblayout">
+						<option>horizontal</option>
+						<option>vertical</option>
+						<option>context</option>
+						</select><br/>
+					</div>
+					<div class="inputdiv">
+						<label>Visible Levels</label>
+						<input type="text" id="txtlevels" value="0" style="width:80px;"><br/>
+					</div>
+					<div class="inputdiv">
+						<input id="chklevelshade" type="checkbox"><label for="chklevelshade">Level Shading</label><br/>
+					</div>
+					<div class="inputdiv">
+						<input id="chkenabletrace" type="checkbox"><label for="chkenabletrace">Enable Trace</label><br/>
+					</div>
+					<div class="inputdiv">
+						<input id="chkshowindexes" type="checkbox"><label for="chkshowindexes">Show Indexes</label><br/>
+					</div>
+					
+					<div class="inputdiv">
+						<label>Activation</label>
+						<select id="cmbactivation">
+						<option>mouseover</option>
+						<option>click</option>
+						</select><br/>
+					</div>
+					<div class="inputdiv">
+						<input id="chkshowicons" checked type="checkbox"><label for="chkshowicons">Show Icons</label><br/>
+					</div>
+					<div class="inputdiv">
+						<input id="chkhidedisabled" type="checkbox"><label for="chkhidedisabled">Hide Disabled</label><br/>
+					</div>
+					<br/>
+					<input type="button" value=" Reload " onclick="reload_menu()">
+				</div>
+			</div>
+			<div id="method-tab">
+				<div style="font-size:9pt; padding:10px;">
+					<b>Methods</b><br/>
+					<input type="text" id="txtitemindex" value="0.5" style="width:80px; font-size:10pt;">
+					<select id="cmbmethod">
+					<option>remove</option>
+					<option>disable</option>
+					<option>enable</option>
+					<option>hide</option>
+					<option>show</option>
+					</select>
+					<input type="button" value=" Run Method " class="minibutton" onclick="menuitem_action($('#txtitemindex').val(), $('#cmbmethod').val());">
+					<br><br>
+
+					<b>Add New Menu Item</b><br/>
+					Reference Item<br/>
+					<input type="text" id="txtrefitemindex" value="0.5" style="width:80px; font-size:10pt;">
+					<select id="cmbpos">
+					<option>after</option>
+					<option>before</option>
+					<option>aschild</option>
+					</select><br/>
+					<input type="text" id="txtnewitemname" value="New Menu xx" style="width:80px; font-size:10pt;">
+					<input type="button" value=" Add Item " class="minibutton" onclick="menuitem_add();">					
+				</div>
+			</div>
+		</td><td id="xml-tabs" valign="top">
+			<ul style="font-size:10pt;">
+				<li><a href="#xml-tab">XML Data</a></li>
+				<li><a href="#css-original-tab">Original CSS</a></li>
+				<li><a href="#css-customize-tab">Custom CSS</a></li>
+			</ul>
+			<div id="xml-tab">
+				<textarea id="txtdata"></textarea>
+			</div>
+			<div id="css-original-tab">
+				<div id="txtoricss"></div>
+			</div>
+			<div id="css-customize-tab">
+				<textarea id="txtcss"></textarea>
+			</div>
+		</td></tr>
+		</table>
+	</div>
+</body>
+</html>
