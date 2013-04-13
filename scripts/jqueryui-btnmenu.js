@@ -6,7 +6,6 @@
 		return (((r*299)+(g*587)+(b*144))/1000) >= 131.5 ? "light" : "dark";
 	};
 
-
 	String.prototype.toXMLNode = function() { 
 		if (!this) return null;
 		var tmp = this.toXMLDoc();	//bspXMLDoc(this);
@@ -83,7 +82,6 @@
 		this.show_icon = false;
 		this.rtl = false;
 		this.datanode = vdata;
-		
 		this.title = vdata.getAttribute("title");
 		this.url = vdata.getAttribute("url") || "#";
 		this.icon = vdata.getAttribute("icon");
@@ -92,7 +90,13 @@
 		this.position = vdata.getAttribute("position");
 		this.disabled = vdata.getAttribute("disabled")=="true"?true:false;
 		this.layout = opts.layout;
-
+		this.columns = 1;
+		if (vdata.getAttribute("columns")) {		
+			this.columns = vdata.getAttribute("columns")*1;
+		}
+this.iconelem = null;
+this.arrowelem = null;
+this.textelem = null;
 		var cdata = "";
 		var imgarrow = "";
 		var icostr = "";		
@@ -241,6 +245,11 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 			//if (this.title!="-") {
 				var elmico = $(".btn-menuitem-icon", this.element);
 				var elmlnk = $(".btn-menuitem-text", this.element);
+				var elmarr = $(".btn-menuitem-arrow", this.element);
+				this.iconelem = elmico;
+				this.textelem = elmlnk;
+				this.arrowelem = elmarr;
+				
 				/*var elmdiv = this.element.first().children();
 				var elmico = null, elmlnk = null, elmarrow = null;
 				if (elmdiv.first().hasClass("btn-menuitem-icon")) {
@@ -278,7 +287,7 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 								if (othat.globals.enabletrace) $(".btn-menuitem").removeClass("btn-trace");
 								var opar = othat.parent;
 								while (opar) {
-									if (othat.globals.enabletrace && opar.element) opar.element.addClass("btn-trace");
+									if (othat.globals.enabletrace && opar.element && opar.columns==1) opar.element.addClass("btn-trace");
 									if (opar.pulldown) opar.pulldown.show();
 									opar = opar.parent;
 								}
@@ -356,7 +365,7 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 		}
 	}
 	btnmenuitem2.prototype.resize_pulldown_elements=function() {
-		if (this.layout=="horizontal") return;		
+		if (this.layout=="horizontal") return;
 		var vcontainer = this.pulldown || this.container;
 		if (vcontainer.length>0) {
 			var mnmax = vcontainer.width();
@@ -379,11 +388,16 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 			var diffmax = mnmax - icomax - arrmax;
 			txtmax = diffmax>txtmax?diffmax:txtmax;
 			$(".btn-menuitem",vcontainer).each(function() {
+				if (!($(this).hasClass("btn-menuitem-columngroup-header"))) {
 				var $txt = $(".btn-menuitem-text", $(this));
 				$(this).width(mnmax);
 				if ($txt.length>0) $txt.width(txtmax);
+				}
 			});
 		}
+	}
+	
+	function xxxxxxxxxxxxxxxxxxx() {
 		return;
 
 		var vcontainer = this.pulldown || this.container;
@@ -504,7 +518,7 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 				if (this.globals.layout=="context") {
 					this.layout = "vertical";
 					//this.container = $("<div class=\"btn-menu vertical btn-context\" style=\"display:inline-block;z-index:900;\"></div>");
-					this.container = $("<div class=\"btn-menu vertical btn-context\" style=\"display:inline;z-index:900;\"></div>");
+					this.container = $("<div class=\"btn-menu vertical btn-context\" style=\"ccdisplay:inline;z-index:900;\"></div>");
 					this.context = true;
 					//this.container.appendTo(vdiv);					
 					vdiv.attr("btnindex",contextcount);
@@ -641,6 +655,48 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 				}
 				if (this.globals.layout=="context") this.container.hide();
 			}
+			if (this.columns>1) {			
+				this.pulldown.height(this.pulldown.height()/this.columns);
+				//this.pulldown.width((this.pulldown.width()*this.columns));
+				
+					//$(this.pulldown).show();
+				var elemind = Math.round(this.children.length/this.columns);
+				var wid = 0;
+				for (var x=0; x<this.columns; x++) {
+					var $grp = $("<div class=\"btn-menuitem-columngroup\"></div>");
+					$grp.appendTo(this.pulldown);
+					for (var y=1; y<=elemind; y++) {
+						var vind = (x*elemind) + y;
+						if (vind<=this.children.length) {
+							this.children[vind-1].element.first().appendTo($grp);
+						}
+					}					
+					wid += $grp.outerWidth();
+				}
+				//alert(wid);
+				//this.pulldown.width(wid + this.columns);
+				//$(this.pulldown).hide();
+				this.pulldown.removeClass("btn-pulldown");
+				this.pulldown.addClass("btn-menuitem-columngroup-container");
+				this.element.mouseover(function() { });
+				this.element.mouseout(function() { });
+				/*this.pulldown.css("display","inline");
+				this.pulldown.css("clear","both");
+				this.pulldown.css("float","none");
+				this.pulldown.css("height","auto");
+				this.pulldown.css("position","relative");
+				this.pulldown.css("margin","10px");*/
+				$(this.pulldown).show();
+				//alert(this.element[0].outerHTML);
+				if (this.arrowelem) {
+					if (this.arrowelem.length>0) {
+						this.arrowelem.css("display","none");
+					}
+				}
+				this.element.addClass("btn-menuitem-columngroup-header");
+				this.pulldown.insertAfter(this.element);
+				this.pulldown=null;
+			}
 	}
 	
 	btnmenuitem2.prototype.getchild=function(vbtnindex) {
@@ -717,7 +773,7 @@ if (this.layout=="horizontal") elmstil="display:inline; float:left;";
 			var cnt = 0;
 			while (opar) {
 				//alert(cnt);
-				if (this.globals.enabletrace && opar.element) opar.element.addClass("btn-trace");
+				if (this.globals.enabletrace && opar.element && opar.columns==1) opar.element.addClass("btn-trace");
 				if (opar.pulldown) {
 					opar.pulldown.show();
 				}
